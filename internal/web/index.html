@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Семейные расходы — панель главы семьи</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #f5f5f7; color: #1d1d1f; }
+  .container { max-width: 960px; margin: 0 auto; padding: 24px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #d2d2d7; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0; }
+  .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+  input, select { padding: 8px 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; }
+  button { padding: 8px 16px; border: 1px solid #d2d2d7; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; }
+  button.primary { background: #007aff; color: #fff; border-color: #007aff; }
+  button.primary:hover { background: #0062cc; }
+  button.danger { color: #ff3b30; border-color: #ff3b30; }
+  button.danger:hover { background: #ff3b30; color: #fff; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #efefef; }
+  th { background: #f9f9f9; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f9f9f9; }
+  .amount { font-weight: 600; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; background: #e5e5ea; color: #1d1d1f; }
+  .empty { text-align: center; padding: 40px; color: #666; }
+  .form-card { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 12px; font-weight: 600; color: #666; }
+  .meta { font-size: 12px; color: #666; margin-top: 8px; }
+  .total-row { font-weight: 700; background: #f2f2f7 !important; }
+  .truncated { color: #ff3b30; font-size: 12px; margin-left: 8px; }
+  .actions { display: flex; gap: 8px; align-items: center; }
+  .actions button { margin: 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Семейные расходы</h1>
+    <div class="meta">Панель главы семьи · авторизация не требуется</div>
+  </header>
+
+  <div class="form-card">
+    <h2 style="margin:0 0 16px 0; font-size:16px;">Добавить трату</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Пользователь</label>
+        <select id="addUser"></select>
+      </div>
+      <div class="form-group">
+        <label>Сумма (руб.)</label>
+        <input type="number" id="amount" step="0.01" min="0" placeholder="350">
+      </div>
+      <div class="form-group">
+        <label>Категория</label>
+        <select id="category">
+          <option>еда</option><option>транспорт</option><option>жильё</option>
+          <option>развлечения</option><option>здоровье</option><option>покупки</option>
+          <option>другое</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Дата</label>
+        <input type="date" id="spentAt">
+      </div>
+      <div class="form-group">
+        <label>Комментарий</label>
+        <input type="text" id="comment" placeholder="необязательно">
+      </div>
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <button class="primary" onclick="addExpense()">Добавить</button>
+      </div>
+    </div>
+    <div id="addResult" class="meta" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="form-group" style="margin:0;">
+      <label>Пользователь</label>
+      <select id="filterUser" onchange="loadExpenses()"><option value="">все</option></select>
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label>С</label>
+      <input type="date" id="filterFrom" onchange="loadExpenses()">
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label>По</label>
+      <input type="date" id="filterTo" onchange="loadExpenses()">
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label>Категория</label>
+      <select id="filterCategory" onchange="loadExpenses()"><option value="">все</option></select>
+    </div>
+    <button class="primary" onclick="loadExpenses()">Обновить</button>
+    <span id="summary" class="meta" style="margin-left:auto;"></span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Пользователь</th><th>Сумма</th><th>Категория</th><th>Дата</th><th>Комментарий</th><th>Действия</th>
+      </tr>
+    </thead>
+    <tbody id="expensesBody"></tbody>
+  </table>
+  <div id="emptyState" class="empty" style="display:none;">Нет трат за выбранный период.</div>
+</div>
+
+<script>
+const API = '/api';
+let allUsers = [];
+
+async function loadUsers() {
+  const res = await fetch(`${API}/users`);
+  allUsers = await res.json();
+  const userSel = document.getElementById('addUser');
+  const filterSel = document.getElementById('filterUser');
+  userSel.innerHTML = '';
+  filterSel.innerHTML = '<option value="">все</option>';
+  for (const id of allUsers) {
+    userSel.add(new Option(`User ${id}`, id));
+    filterSel.add(new Option(`User ${id}`, id));
+  }
+}
+
+function todayISO() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+}
+
+async function addExpense() {
+  const userId = parseInt(document.getElementById('addUser').value);
+  const amount = parseFloat(document.getElementById('amount').value);
+  const category = document.getElementById('category').value;
+  const spentAt = document.getElementById('spentAt').value || todayISO();
+  const comment = document.getElementById('comment').value;
+
+  if (!userId || !amount || amount <= 0) {
+    document.getElementById('addResult').textContent = 'Укажите пользователя и сумму > 0';
+    return;
+  }
+
+  const res = await fetch(`${API}/expenses`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, amount, category, spent_at: spentAt, comment: comment || undefined }),
+  });
+  const resultEl = document.getElementById('addResult');
+  if (!res.ok) {
+    const err = await res.json();
+    resultEl.textContent = 'Ошибка: ' + (err.error || res.status);
+    resultEl.style.color = '#ff3b30';
+    return;
+  }
+  const data = await res.json();
+  resultEl.textContent = `Добавлено: ${data.amount / 100} руб., ${data.category}, ${data.spent_at}`;
+  resultEl.style.color = '#007aff';
+  document.getElementById('amount').value = '';
+  document.getElementById('comment').value = '';
+  loadExpenses();
+}
+
+async function loadExpenses() {
+  const params = new URLSearchParams();
+  const u = document.getElementById('filterUser').value;
+  if (u) params.set('user_id', u);
+  const f = document.getElementById('filterFrom').value;
+  if (f) params.set('from', f);
+  const t = document.getElementById('filterTo').value;
+  if (t) params.set('to', t);
+  const c = document.getElementById('filterCategory').value;
+  if (c) params.set('category', c);
+
+  const res = await fetch(`${API}/expenses?${params}`);
+  const data = await res.json();
+
+  const body = document.getElementById('expensesBody');
+  const empty = document.getElementById('emptyState');
+  const summary = document.getElementById('summary');
+
+  body.innerHTML = '';
+  if (!data.expenses || data.expenses.length === 0) {
+    body.style.display = 'none';
+    empty.style.display = 'block';
+    summary.textContent = '';
+    return;
+  }
+  body.style.display = '';
+  empty.style.display = 'none';
+
+  let totalRub = 0;
+  for (const e of data.expenses) {
+    totalRub += e.amount / 100;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${e.id}</td>
+      <td>User ${e.user_id}</td>
+      <td class="amount">${(e.amount / 100).toFixed(2)}</td>
+      <td><span class="badge">${e.category}</span></td>
+      <td>${e.spent_at}</td>
+      <td>${e.comment || '—'}</td>
+      <td>
+        <div class="actions">
+          <button onclick="openEdit(${e.id}, ${e.user_id}, ${e.amount / 100}, '${e.category}', '${e.spent_at}', '${e.comment || ''}')">Ред.</button>
+          <button class="danger" onclick="deleteExpense(${e.id})">Удалить</button>
+        </div>
+      </td>
+    `;
+    body.appendChild(tr);
+  }
+
+  summary.textContent = `Всего: ${totalRub.toFixed(2)} руб. · записей: ${data.count} из ${data.total}${data.truncated ? ' (обрезано до 50)' : ''}`;
+}
+
+let editId = null;
+
+function openEdit(id, userId, amount, category, spentAt, comment) {
+  editId = id;
+  document.getElementById('editUserId').value = userId;
+  document.getElementById('editAmount').value = amount;
+  document.getElementById('editCategory').value = category;
+  document.getElementById('editSpentAt').value = (spentAt || todayISO()).slice(0, 10);
+  document.getElementById('editComment').value = comment === 'null' ? '' : (comment || '');
+  document.getElementById('editModal').style.display = 'block';
+}
+
+function closeEdit() {
+  document.getElementById('editModal').style.display = 'none';
+  editId = null;
+}
+
+async function saveEdit() {
+  const amount = parseFloat(document.getElementById('editAmount').value);
+  const category = document.getElementById('editCategory').value;
+  const spentAt = document.getElementById('editSpentAt').value;
+  const comment = document.getElementById('editComment').value;
+
+  const body = {};
+  if (amount > 0) body.amount = amount;
+  if (category) body.category = category;
+  if (spentAt) body.spent_at = spentAt;
+  if (comment !== undefined) body.comment = comment;
+
+  const res = await fetch(`${API}/expenses/${editId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    alert('Ошибка: ' + (err.error || res.status));
+    return;
+  }
+  closeEdit();
+  loadExpenses();
+}
+
+async function deleteExpense(id) {
+  if (!confirm('Удалить трату?')) return;
+  const res = await fetch(`${API}/expenses/${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const err = await res.json();
+    alert('Ошибка: ' + (err.error || res.status));
+    return;
+  }
+  loadExpenses();
+}
+
+const CATEGORIES = ['еда', 'транспорт', 'жильё', 'развлечения', 'здоровье', 'покупки', 'другое'];
+
+// Initialize
+document.getElementById('spentAt').value = todayISO();
+(function initCategoryFilter() {
+  const sel = document.getElementById('filterCategory');
+  for (const c of CATEGORIES) {
+    sel.add(new Option(c, c));
+  }
+})();
+(async () => {
+  await loadUsers();
+  await loadExpenses();
+})();
+</script>
+
+<div id="editModal" style="display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4);">
+  <div style="background:#fff;margin:10% auto;padding:24px;border-radius:12px;width:90%;max-width:420px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+    <h3 style="margin:0 0 16px;font-size:16px;">Редактировать трату</h3>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:600;color:#666;">Пользователь</label>
+      <input type="text" id="editUserId" readonly style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:8px;width:100%;font-size:14px;">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:600;color:#666;">Сумма (руб.)</label>
+      <input type="number" id="editAmount" step="0.01" style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:8px;width:100%;font-size:14px;">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:600;color:#666;">Категория</label>
+      <select id="editCategory" style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:8px;width:100%;font-size:14px;">
+        <option>еда</option><option>транспорт</option><option>жильё</option>
+        <option>развлечения</option><option>здоровье</option><option>покупки</option>
+        <option>другое</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:600;color:#666;">Дата</label>
+      <input type="date" id="editSpentAt" style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:8px;width:100%;font-size:14px;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;font-weight:600;color:#666;">Комментарий</label>
+      <input type="text" id="editComment" style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:8px;width:100%;font-size:14px;">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeEdit()" style="padding:8px 16px;border:1px solid #d2d2d7;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;">Отмена</button>
+      <button onclick="saveEdit()" class="primary">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
