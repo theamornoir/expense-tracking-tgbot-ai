@@ -85,6 +85,7 @@ func (h *ExpenseHandler) listExpenses(w http.ResponseWriter, r *http.Request) {
 
 	type item struct {
 		ID        int64   `json:"id"`
+		UserID    int64   `json:"user_id"`
 		Amount    float64 `json:"amount"` // rubles
 		Category  string  `json:"category"`
 		SpentAt   string  `json:"spent_at"`
@@ -96,6 +97,7 @@ func (h *ExpenseHandler) listExpenses(w http.ResponseWriter, r *http.Request) {
 	for _, e := range result.Expenses {
 		expenses = append(expenses, item{
 			ID:        e.ID,
+			UserID:    e.UserID,
 			Amount:    service.CentsToRubles(e.Amount),
 			Category:  string(e.Category),
 			SpentAt:   e.SpentAt.Format("2006-01-02"),
@@ -138,6 +140,7 @@ func (h *ExpenseHandler) createExpense(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"id":         e.ID,
+		"user_id":    e.UserID,
 		"amount":     service.CentsToRubles(e.Amount),
 		"category":   string(e.Category),
 		"spent_at":   e.SpentAt.Format("2006-01-02"),
@@ -171,6 +174,7 @@ func (h *ExpenseHandler) updateExpense(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, map[string]any{
 		"id":         e.ID,
+		"user_id":    e.UserID,
 		"amount":     service.CentsToRubles(e.Amount),
 		"category":   string(e.Category),
 		"spent_at":   e.SpentAt.Format("2006-01-02"),

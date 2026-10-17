@@ -157,7 +157,7 @@ async function addExpense() {
     return;
   }
   const data = await res.json();
-  resultEl.textContent = `Добавлено: ${data.amount / 100} руб., ${data.category}, ${data.spent_at}`;
+  resultEl.textContent = `Добавлено: ${data.amount} руб., ${data.category}, ${data.spent_at}`;
   resultEl.style.color = '#007aff';
   document.getElementById('amount').value = '';
   document.getElementById('comment').value = '';
@@ -194,18 +194,18 @@ async function loadExpenses() {
 
   let totalRub = 0;
   for (const e of data.expenses) {
-    totalRub += e.amount / 100;
+    totalRub += e.amount;
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${e.id}</td>
       <td>User ${e.user_id}</td>
-      <td class="amount">${(e.amount / 100).toFixed(2)}</td>
+      <td class="amount">${(e.amount).toFixed(2)}</td>
       <td><span class="badge">${e.category}</span></td>
       <td>${e.spent_at}</td>
       <td>${e.comment || '—'}</td>
       <td>
         <div class="actions">
-          <button onclick="openEdit(${e.id}, ${e.user_id}, ${e.amount / 100}, '${e.category}', '${e.spent_at}', '${e.comment || ''}')">Ред.</button>
+          <button onclick="openEdit(${e.id}, ${e.user_id}, ${e.amount}, '${e.category}', '${e.spent_at}', '${e.comment || ''}')">Ред.</button>
           <button class="danger" onclick="deleteExpense(${e.id})">Удалить</button>
         </div>
       </td>
