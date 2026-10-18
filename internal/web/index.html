@@ -10,8 +10,12 @@
   .container { max-width: 960px; margin: 0 auto; padding: 24px; }
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #d2d2d7; }
   h1 { font-size: 20px; font-weight: 600; margin: 0; }
-  .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
-  input, select { padding: 8px 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; }
+  .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: flex-end; }
+  .toolbar input, .toolbar select, .toolbar button { height: 37px; padding: 0 12px; }
+  .toolbar select { padding-right: 32px; }
+  input, select, button { padding: 8px 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; }
+  .form-grid input, .form-grid select, .form-grid button { height: 37px; padding: 0 12px; }
+  .form-grid select { padding-right: 32px; }
   button { padding: 8px 16px; border: 1px solid #d2d2d7; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; }
   button.primary { background: #007aff; color: #fff; border-color: #007aff; }
   button.primary:hover { background: #0062cc; }
@@ -26,8 +30,9 @@
   .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; background: #e5e5ea; color: #1d1d1f; }
   .empty { text-align: center; padding: 40px; color: #666; }
   .form-card { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: stretch; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; min-height: 0; justify-content: flex-end; }
+  .form-grid input, .form-grid select, .form-grid button { flex: 1 1 auto; }
   label { font-size: 12px; font-weight: 600; color: #666; }
   .meta { font-size: 12px; color: #666; margin-top: 8px; }
   .total-row { font-weight: 700; background: #f2f2f7 !important; }
@@ -272,7 +277,6 @@ async function deleteExpense(id) {
 
 const CATEGORIES = ['еда', 'транспорт', 'жильё', 'развлечения', 'здоровье', 'покупки', 'другое'];
 
-// Initialize
 document.getElementById('spentAt').value = todayISO();
 (function initCategoryFilter() {
   const sel = document.getElementById('filterCategory');
