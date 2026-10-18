@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -48,8 +47,6 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("APP_TIMEZONE %q: %w", tzName, err)
 	}
 	cfg.AppTimezone = loc
-
-	cfg.MOCK_LLM = os.Getenv("MOCK_LLM") == "true"
 
 	return cfg, nil
 }

@@ -86,7 +86,7 @@ func (h *ExpenseHandler) listExpenses(w http.ResponseWriter, r *http.Request) {
 	type item struct {
 		ID        int64   `json:"id"`
 		UserID    int64   `json:"user_id"`
-		Amount    float64 `json:"amount"` // rubles
+		Amount    float64 `json:"amount"`
 		Category  string  `json:"category"`
 		SpentAt   string  `json:"spent_at"`
 		Comment   string  `json:"comment"`

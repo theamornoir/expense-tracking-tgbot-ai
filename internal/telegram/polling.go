@@ -47,7 +47,6 @@ func (b *Bot) Run(ctx context.Context) error {
 	}
 }
 
-// ThinkingStickerID is the sticker shown while the agent processes a message.
 const ThinkingStickerID = "CAACAgIAAxkBAAFSHTBqhEdPxpayFrvOh_6ZlwTkqEoK5wACx2YAAr4ucEjIXXOW8_Sqez0E"
 
 func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {

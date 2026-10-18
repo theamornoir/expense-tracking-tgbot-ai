@@ -176,10 +176,6 @@ func (c *Client) chatOnce(ctx context.Context, messages []Message, tools []ToolD
 	return &completion.Choices[0], nil
 }
 
-// ---------------------------------------------------------------------------
-// Mock layer
-// ---------------------------------------------------------------------------
-
 // MockResponses is the canned reply map used in MOCK_LLM mode.
 var MockResponses = map[string]*Response{
 	"кофе 350": {
@@ -216,7 +212,6 @@ var MockResponses = map[string]*Response{
 
 type mockClient struct{}
 
-// NewMockClient returns an LLMClient that replays MockResponses.
 func NewMockClient() LLMClient { return &mockClient{} }
 
 func (m *mockClient) Chat(ctx context.Context, messages []Message, tools []ToolDefinition) (*Choice, error) {

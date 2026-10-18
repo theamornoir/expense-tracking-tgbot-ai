@@ -134,7 +134,6 @@ func (a *Agent) processLocked(ctx context.Context, userID int64, text string) (s
 			break
 		}
 
-		// Execute tools and feed results back to the LLM.
 		for _, tc := range toolCalls {
 			slog.Info("agent tool call", "user", userID, "iteration", iterations, "tool", tc.Function.Name, "args", tc.Function.Arguments)
 			toolResult := a.executeTool(ctx, userID, tc)
@@ -153,7 +152,7 @@ func (a *Agent) processLocked(ctx context.Context, userID int64, text string) (s
 		finalText = "Извините, не удалось обработать ваш запрос. Попробуйте сформулировать иначе."
 	}
 
-	// Strip markdown formatting (stars, underscores, backticks) from the reply.
+	// Strip markdown: Telegram renders it as literal asterisks.
 	finalText = stripMarkdown(finalText)
 
 	slog.Info("agent done", "user", userID, "iterations", iterations, "final_len", len(finalText))
