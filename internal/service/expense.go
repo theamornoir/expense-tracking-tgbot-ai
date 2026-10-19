@@ -37,18 +37,18 @@ type AddExpenseParams struct {
 	UserID   *int64  `json:"user_id"`
 	Category string  `json:"category"`
 	Amount   float64 `json:"amount"`
-	SpentAt  *string `json:"spent_at"` // YYYY-MM-DD
+	SpentAt  *string `json:"spent_at"`
 	Comment  *string `json:"comment"`
 }
 
 // ListExpensesParams are the filters for listing expenses.
 type ListExpensesParams struct {
 	UserID   *int64  `json:"user_id"`
-	From     *string `json:"from"` // YYYY-MM-DD
-	To       *string `json:"to"`   // YYYY-MM-DD
+	From     *string `json:"from"`
+	To       *string `json:"to"`
 	Category *string `json:"category"`
 	Limit    *int    `json:"limit"`
-	Sort     string  `json:"sort"` // "created" | "spent"
+	Sort     string  `json:"sort"`
 }
 
 // ListResult is the listing output with server-computed total and count.
