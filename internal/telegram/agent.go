@@ -205,6 +205,7 @@ func (a *Agent) handleListExpenses(ctx context.Context, userID int64, argsJSON s
 	if err := json.Unmarshal([]byte(argsJSON), &p); err != nil {
 		return fmt.Sprintf(`{"error": "неверные аргументы list_expenses: %s"}`, err.Error())
 	}
+	p.UserID = &userID
 	result, err := a.service.ListExpenses(ctx, userID, p)
 	if err != nil {
 		return fmt.Sprintf(`{"error": "%s"}`, err.Error())
